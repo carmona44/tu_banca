@@ -2,3 +2,25 @@
     color: blueviolet;
     font-weight: bold;
 }
+
+.ingreso{
+    color: blue;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.gasto{
+    color: red;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.positivo{
+    color: lawngreen;
+    font-weight: bold;
+}
+
+.negativo{
+    color: red;
+    font-weight: bold;
+}
