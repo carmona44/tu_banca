@@ -19,10 +19,12 @@
     </head>
 
     <body ng-app="tuBanca">
-        <h1>Tu Banca</h1>
+        <div style="text-align: center;">
+            <img src="imagenes/tu_banca.png"/><br>
 
-        <a ui-sref="cartera" ui-sref-active="active">Cartera</a>
-        <a ui-sref="estadisticas" ui-sref-active="active">Estadísticas</a>
+            <a ui-sref="cartera" ui-sref-active="active">Cartera</a>
+            <a ui-sref="estadisticas" ui-sref-active="active">Estadísticas</a>
+        </div>
 
         <ui-view></ui-view>
     </body>
