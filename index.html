@@ -14,6 +14,9 @@
         <script src="node_modules/angular-animate/angular-animate.js"></script>
         <script src="node_modules/angular-material/angular-material.js"></script>
         <script src="node_modules/angular-ui-router/release/angular-ui-router.js"></script>
+        <script src="node_modules/jquery/dist/jquery.js"></script>
+        <script src="node_modules/highcharts/highcharts.js"></script>
+        <script src="node_modules/highcharts/modules/exporting.js"></script>
         <!-- Hasta aquí lo anterior comentado -->
         <script src="javascript/app.js"></script>
     </head>
@@ -22,8 +25,10 @@
         <div style="text-align: center;">
             <img src="imagenes/tu_banca.png"/><br>
 
-            <a ui-sref="cartera" ui-sref-active="active">Cartera</a>
-            <a ui-sref="estadisticas" ui-sref-active="active">Estadísticas</a>
+            <md-tabs md-border-bottom md-center-tabs md-swipe-content>
+                <md-tab label="Cartera" ui-sref="cartera" ui-sref-active="active"></md-tab>
+                <md-tab label="Estadísticas" ui-sref="estadisticas" ui-sref-active="active"></md-tab>
+            </md-tabs>
         </div>
 
         <ui-view></ui-view>
