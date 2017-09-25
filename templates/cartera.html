@@ -14,9 +14,9 @@
             </md-input-container>
             <md-input-container>
                 <label>Fecha</label>
-                <md-datepicker ng-model="fecha"></md-datepicker>
+                <md-datepicker ng-model="fecha" md-min-date="minFecha" md-max-date="maxFecha"></md-datepicker>
             </md-input-container>
-            <md-button class="md-raised md-primary" style="height: 50px;">Añadir</md-button>
+            <md-button class="md-raised md-primary" style="height: 50px;" ng-click="anadirMov()">Añadir</md-button>
         </div>
     </form>
 </md-content>

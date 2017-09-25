@@ -23,8 +23,21 @@ angular.module('tuBanca', ['ui.router', 'ngMaterial'])
     .controller('CarteraController', carteraController)
     .controller('EstadisticasController', estadisticasController);
 
+//Variables globales
+var db = null;
+var registros = [];
+
+//Controladores
 function carteraController($scope) {
-    $scope.movimientos = [
+
+    obtenerBD();
+    $scope.movimientos = registros;
+
+    var fecha = new Date();
+    var anoActual = fecha.getFullYear();
+    $scope.minFecha = new Date(anoActual, '00', '01');
+    $scope.maxFecha = new Date(anoActual, '11', '31');
+    /*$scope.movimientos = [
         {
             cantidad: 1234,
             fecha: '25/05/2016',
@@ -136,10 +149,13 @@ function carteraController($scope) {
             fecha: '25/08/2017',
             tipo: 'gasto'
         }
-    ];
+    ];*/
     $scope.ingresos = 0;
     $scope.gastos = 0;
     $scope.total = 0;
+    $scope.fecha = '';
+    $scope.cantidad = '';
+    $scope.tipo = '';
 
     for (var i=0; i<$scope.movimientos.length; i++){
         if($scope.movimientos[i].tipo == 'gasto'){
@@ -150,9 +166,19 @@ function carteraController($scope) {
     }
 
     $scope.total = $scope.ingresos - $scope.gastos;
+
+    $scope.anadirMov = function () {
+
+    }
 }
 
 function estadisticasController() {
+    var fecha = new Date();
+    var anoActual = fecha.getFullYear();
+    var ingresosMensual = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var totalesMensual = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var gastosMensual = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
     $(document).ready(function() {
         $('#grafica').highcharts({
             title: {
@@ -183,17 +209,64 @@ function estadisticasController() {
             },
             series: [{
                 name: 'Ingresos',
-                data: [7.0, 6.9, 9.5, 12.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6],
+                data: ingresosMensual,
                 color: '#351BEF'
             }, {
                 name: 'Total',
-                data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8, 24.1, 20.1, 14.1, 8.6, 2.5],
+                data: totalesMensual,
                 color: '#000000'
             }, {
                 name: 'Gastos',
-                data: [0, 0, 0, 0, 0, 17.0, 18.6, 17.9, 14.3, 9.0, 3.9, 1.0],
+                data: gastosMensual,
                 color: '#FF0000'
             }]
         });
     });
+}
+
+//Funciones de CRUD
+function obtenerBD() {
+    var request = indexedDB.open("libreria");
+
+    request.onupgradeneeded = function() {
+        // Si la base de datos no existe previamente, crea almacenes e índices.
+        db = request.result;
+        var store = db.createObjectStore('movimientos', {autoIncrement: true});
+        var cantidadIndex = store.createIndex("by_cantidad", "cantidad");
+        var fechaIndex = store.createIndex("by_fecha", "fecha");
+        var tipoIndex = store.createIndex("by_tipo", "tipo");
+        var descripcionIndex = store.createIndex("by_descripcion", "descripcion");
+
+        // Datos iniciales.
+        store.put({cantidad: 65841, fecha: "25/03/2017", tipo: 'ingreso', descripcion: "Probando IndexedDB"});
+        store.put({cantidad: 5864, fecha: "28/03/2017", tipo: 'gasto', descripcion: "Probando IndexedDB..."});
+        store.put({cantidad: 5864, fecha: "28/03/2017", tipo: 'gasto', descripcion: "Probando IndexedDB..."});
+        store.put({cantidad: 1254961, fecha: "25/04/2017", tipo: 'ingreso', descripcion: "Probando IndexedDB 2..."});
+    };
+
+    request.onsuccess = function() {
+        db = request.result;
+        console.log('BBDD cargada correctamente');
+        obtenerRegistros();
+    };
+
+    request.onerror = function () {
+        console.log('Error al cargar la BBDD');
+    };
+}
+
+function obtenerRegistros() {
+    var datos = db.transaction(['movimientos'], 'readonly');
+    var objeto = datos.objectStore('movimientos');
+
+    objeto.openCursor().onsuccess = function (e) {
+        var res = e.target.result;
+
+        if (res === null) {
+            return;
+        }
+
+        registros.push(res.value);
+        res.continue();
+    };
 }
