@@ -19,7 +19,7 @@ angular.module('tuBanca', ['ui.router', 'ngMaterial'])
 
         $urlRouterProvider.otherwise('/cartera');
         $mdDateLocaleProvider.firstDayOfWeek = 1;
-})
+    })
     .controller('CarteraController', carteraController)
     .controller('EstadisticasController', estadisticasController);
 
@@ -30,126 +30,11 @@ var registros = [];
 //Controladores
 function carteraController($scope) {
 
-    obtenerBD();
-    $scope.movimientos = registros;
-
     var fecha = new Date();
     var anoActual = fecha.getFullYear();
     $scope.minFecha = new Date(anoActual, '00', '01');
     $scope.maxFecha = new Date(anoActual, '11', '31');
-    /*$scope.movimientos = [
-        {
-            cantidad: 1234,
-            fecha: '25/05/2016',
-            tipo: 'ingreso',
-            descripcion: 'Nomina mensual porque yo lo valgofdsssssssssssssss ssssssssdfsfaaaa'
-        },
-        {
-            cantidad: 12894,
-            fecha: '28/05/2016',
-            tipo: 'ingreso'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'ingreso'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'gasto'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'gasto'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'ingreso'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'ingreso'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'ingreso'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'gasto'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'ingreso'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'ingreso'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'gasto'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'ingreso'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'gasto'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'gasto'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'ingreso'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'ingreso'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'ingreso'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'gasto'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'gasto'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'ingreso'
-        },
-        {
-            cantidad: 648,
-            fecha: '25/08/2017',
-            tipo: 'gasto'
-        }
-    ];*/
+    $scope.descripcion = '';
     $scope.ingresos = 0;
     $scope.gastos = 0;
     $scope.total = 0;
@@ -157,18 +42,38 @@ function carteraController($scope) {
     $scope.cantidad = '';
     $scope.tipo = '';
 
-    for (var i=0; i<$scope.movimientos.length; i++){
-        if($scope.movimientos[i].tipo == 'gasto'){
-            $scope.gastos += $scope.movimientos[i].cantidad;
-        } else {
-            $scope.ingresos += $scope.movimientos[i].cantidad;
-        }
-    }
+    obtenerBD();
 
-    $scope.total = $scope.ingresos - $scope.gastos;
+    setTimeout(function () {
+        calcularSaldos();
+    }, 200)
 
     $scope.anadirMov = function () {
+        addRegistro($scope.tipo, $scope.cantidad, $scope.fecha, $scope.descripcion);
+        setTimeout(function () {
+            calcularSaldos();
+            $scope.descripcion = '';
+            $scope.fecha = '';
+            $scope.cantidad = '';
+            $scope.tipo = '';
+        }, 100)
+    };
 
+    function calcularSaldos() {
+        $scope.movimientos = registros;
+        $scope.ingresos = 0;
+        $scope.gastos = 0;
+        $scope.total = 0;
+
+        for (var i = 0; i < $scope.movimientos.length; i++) {
+            if ($scope.movimientos[i].tipo == 'gasto') {
+                $scope.gastos += $scope.movimientos[i].cantidad;
+            } else {
+                $scope.ingresos += $scope.movimientos[i].cantidad;
+            }
+        }
+
+        $scope.total = $scope.ingresos - $scope.gastos;
     }
 }
 
@@ -179,7 +84,7 @@ function estadisticasController() {
     var totalesMensual = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     var gastosMensual = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#grafica').highcharts({
             title: {
                 text: 'Gastos e ingresos',
@@ -228,7 +133,7 @@ function estadisticasController() {
 function obtenerBD() {
     var request = indexedDB.open("libreria");
 
-    request.onupgradeneeded = function() {
+    request.onupgradeneeded = function () {
         // Si la base de datos no existe previamente, crea almacenes e índices.
         db = request.result;
         var store = db.createObjectStore('movimientos', {autoIncrement: true});
@@ -244,7 +149,7 @@ function obtenerBD() {
         store.put({cantidad: 1254961, fecha: "25/04/2017", tipo: 'ingreso', descripcion: "Probando IndexedDB 2..."});
     };
 
-    request.onsuccess = function() {
+    request.onsuccess = function () {
         db = request.result;
         console.log('BBDD cargada correctamente');
         obtenerRegistros();
@@ -258,6 +163,7 @@ function obtenerBD() {
 function obtenerRegistros() {
     var datos = db.transaction(['movimientos'], 'readonly');
     var objeto = datos.objectStore('movimientos');
+    registros = [];
 
     objeto.openCursor().onsuccess = function (e) {
         var res = e.target.result;
@@ -268,5 +174,25 @@ function obtenerRegistros() {
 
         registros.push(res.value);
         res.continue();
+    };
+}
+
+function addRegistro(tipo, cantidad, fecha, descripcion) {
+    var datos = db.transaction(['movimientos'], "readwrite");
+    var objeto = datos.objectStore('movimientos');
+
+    var request = objeto.put({
+        tipo: tipo,
+        cantidad: cantidad,
+        fecha: fecha
+    });
+
+    request.onerror = function (e) {
+        console.log('ERROR al añadir el nuevo registro: ' + e);
+    };
+
+    datos.oncomplete = function (e) {
+        console.log('Movimiento añadido correctamente');
+        obtenerRegistros();
     };
 }
