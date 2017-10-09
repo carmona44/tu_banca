@@ -28,7 +28,7 @@ var db = null;
 var registros = [];
 
 //Controladores
-function carteraController($scope) {
+function carteraController($scope, $mdToast) {
 
     var fecha = new Date();
     var anoActual = fecha.getFullYear();
@@ -46,17 +46,38 @@ function carteraController($scope) {
 
     setTimeout(function () {
         calcularSaldos();
-    }, 200)
+    }, 200);
 
     $scope.anadirMov = function () {
-        addRegistro($scope.tipo, $scope.cantidad, $scope.fecha, $scope.descripcion);
-        setTimeout(function () {
-            calcularSaldos();
+        if($scope.tipo && $scope.cantidad && $scope.fecha){
+            addRegistro($scope.tipo, $scope.cantidad, $scope.fecha, $scope.descripcion);
+            $mdToast.show(
+                $mdToast.simple()
+                    .textContent('Movimiento agregado. Calculando total...')
+                    .position('top right')
+                    .hideDelay(2000)
+            );
+
             $scope.descripcion = '';
             $scope.fecha = '';
             $scope.cantidad = '';
             $scope.tipo = '';
-        }, 100)
+
+            setTimeout(function () {
+                calcularSaldos();
+            }, 100);
+        } else {
+            $mdToast.show(
+                $mdToast.simple()
+                    .textContent('No has introducido los valores obligatorios.')
+                    .position('top right')
+                    .hideDelay(2000)
+            );
+            $scope.descripcion = '';
+            $scope.fecha = '';
+            $scope.cantidad = '';
+            $scope.tipo = '';
+        }
     };
 
     function calcularSaldos() {
@@ -184,7 +205,8 @@ function addRegistro(tipo, cantidad, fecha, descripcion) {
     var request = objeto.put({
         tipo: tipo,
         cantidad: cantidad,
-        fecha: fecha
+        fecha: formateaFecha(fecha),
+        descripcion: descripcion
     });
 
     request.onerror = function (e) {
@@ -195,4 +217,15 @@ function addRegistro(tipo, cantidad, fecha, descripcion) {
         console.log('Movimiento añadido correctamente');
         obtenerRegistros();
     };
+
+    function formateaFecha(fecha) {
+        let mes = String(fecha.getMonth() + 1);
+        let dia = String(fecha.getDate());
+        const ano = String(fecha.getFullYear());
+
+        if (mes.length < 2) mes = '0' + mes;
+        if (dia.length < 2) dia = '0' + dia;
+
+        return `${dia}/${mes}/${ano}`;
+    }
 }
